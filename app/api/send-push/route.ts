@@ -14,9 +14,11 @@ export async function POST() {
 
     const subs = getSubscriptions()
     const payload = JSON.stringify({
-        title: 'Hello from Next.js!',
+        title: 'Notification from web push!',
         body: 'This is a test notification!'
     })
+
+    console.log(subs);
 
     for (const sub of subs) {
         try {
