@@ -12,13 +12,11 @@ export async function POST() {
         process.env.VAPID_PRIVATE_KEY!
     )
 
-    const subs = getSubscriptions()
+    const subs = await getSubscriptions()
     const payload = JSON.stringify({
         title: 'Notification from web push!',
         body: 'This is a test notification!'
     })
-
-    console.log(subs);
 
     for (const sub of subs) {
         try {
