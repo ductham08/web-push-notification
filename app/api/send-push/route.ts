@@ -28,7 +28,7 @@ export async function POST() {
         let sentCount = 0
 
         await Promise.all(
-            subs.map(async (sub) => {
+            subs.map(async (index, sub:any) => {
                 try {
                     await webpush.sendNotification(sub, payload)
                     sentCount++
