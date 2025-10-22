@@ -17,21 +17,17 @@ export async function subscribeUserToPush() {
         return
     }
 
-    // 1. Đăng ký service worker
     const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' })
     console.log('Service Worker registered')
 
-    // 2. Kiểm tra quyền thông báo
     const permission = await Notification.requestPermission()
     if (permission !== 'granted') {
         console.warn('Notification permission not granted')
         return
     }
 
-    // 3. Kiểm tra xem đã có subscription chưa
     let subscription = await registration.pushManager.getSubscription()
 
-    // 4. Nếu chưa có → tạo mới
     if (!subscription) {
         const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
         if (!vapidPublicKey) {
@@ -48,7 +44,6 @@ export async function subscribeUserToPush() {
         console.log('Already subscribed!')
     }
 
-    // 5. Gửi subscription lên server
     try {
         const res = await fetch('/api/save-subscription', {
             method: 'POST',
