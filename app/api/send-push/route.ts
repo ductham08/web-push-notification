@@ -35,7 +35,6 @@ export async function POST() {
                 } catch (err: any) {
                     console.error('Push failed:', err.message)
 
-                    // Nếu lỗi 410 (subscription expired), xóa luôn khỏi DB
                     if (err.statusCode === 410 || err.statusCode === 404) {
                         await Subscription.deleteOne({ endpoint: sub.endpoint })
                         console.log(`Deleted expired subscription: ${sub.endpoint}`)
