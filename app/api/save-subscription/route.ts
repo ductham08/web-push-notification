@@ -1,34 +1,29 @@
-import { promises as fs } from 'fs'
-import path from 'path'
 import { NextResponse } from 'next/server'
-
-const filePath = path.join(process.cwd(), 'subscriptions.json')
+import connectDB from '@/lib/db'
+import Subscription from '@/models/Subscription'
 
 export async function POST(req: Request) {
+  await connectDB()
   const body = await req.json()
 
-  let subs: any[] = []
+  if (!body?.endpoint || !body?.keys) {
+    return NextResponse.json({ success: false, message: 'Invalid subscription data' }, { status: 400 })
+  }
+
   try {
-    const data = await fs.readFile(filePath, 'utf-8')
-    subs = JSON.parse(data)
-  } catch {
-    subs = []
-  }
+    const exists = await Subscription.findOne({ endpoint: body.endpoint })
+    if (!exists) {
+      await Subscription.create(body)
+    }
 
-  // tránh trùng subscription
-  if (!subs.find(s => s.endpoint === body.endpoint)) {
-    subs.push(body)
-    await fs.writeFile(filePath, JSON.stringify(subs, null, 2))
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    console.error('Save subscription error:', err)
+    return NextResponse.json({ success: false, message: err.message }, { status: 500 })
   }
-
-  return NextResponse.json({ success: true })
 }
 
 export async function getSubscriptions() {
-  try {
-    const data = await fs.readFile(filePath, 'utf-8')
-    return JSON.parse(data)
-  } catch {
-    return []
-  }
+  await connectDB()
+  return await Subscription.find().lean()
 }
